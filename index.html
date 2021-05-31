@@ -24,6 +24,16 @@
         width: 240px;
       }
     </style>
+    
+    <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+    <script>
+      window.TrackJS && TrackJS.install({ 
+        token: "f6b83c17d81e49228399eec88c7fe5f3",
+        application: "lab-9"
+        // for more configuration options, see https://docs.trackjs.com
+      });
+    </script>         
+
   </head>
   <body>
     <fieldset>
@@ -53,16 +63,35 @@
       <button>End Timer</button>
       <button>Console Trace</button>
       <button>Trigger a Global Error</button>
+      <button>Uncaught Error Test</button>
     </section>
 
     <script>
+      // Custom Error Class
+      class InputError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = 'Input Error';
+        }
+      }
+      
       let calculateBtn = document.querySelector('#calculate');
       calculateBtn.addEventListener('click', () => {
         let output = document.querySelector('output');
         let firstNum = document.querySelector('#first-num').value;
         let secondNum = document.querySelector('#second-num').value;
         let operator = document.querySelector('#operator').value;
-        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+        try {
+          //  True if input is either empty or not an int/float
+          if(firstNum == '' || secondNum == '') {
+            throw new InputError('invalid input, must be integer or float input!');
+          }
+
+          output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+        } catch (error) {
+          console.log(error);
+        }
       });
 
       let errorBtns = Array.from(
@@ -137,7 +166,17 @@
         } catch (err) {
           console.log(err);
         }
-      });
+      });    
+      
+      // Uncaught error test (for window.onerror() test)
+      errorBtns[11].addEventListener('click', () => {
+        throw Error('uncaught error testing');
+      });  
+
+      window.onerror = function (msg, url, lineNo, columnNo, error) {
+        console.log(`In window.onerror(), found uncaught error: ${error} at line ${lineNo}, column ${columnNo}.`);
+        console.log(`Message: ${msg}`)
+      };
     </script>
   </body>
 </html>
