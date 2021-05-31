@@ -165,6 +165,8 @@
           triggerError();
         } catch (err) {
           console.log(err);
+        } finally {
+          console.log('in finally block. try/catch above was used for Global Error testing.' );
         }
       });    
       
